@@ -1,0 +1,7 @@
+name: mruby-cvisor
+description: CVisor class
+author: Yuki Nakata
+website: https://github.com/chikuwait/mruby-cvisor
+protocol: git
+repository: https://github.com/chikuwait/mruby-cvisor.git
+license: MIT
