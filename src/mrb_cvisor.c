@@ -54,7 +54,7 @@ static mrb_value mrb_cvisor_init(mrb_state *mrb, mrb_value self)
   data->pid = pid;
   DATA_PTR(self) = data;
 
-  if(vmmcall_setpid(pid) != 0){
+  if(vmmcall_setpid(pid) == -1){
     fprintf (stderr, "vmmcall \"setpid\" failed\n");
   }
   return self;
