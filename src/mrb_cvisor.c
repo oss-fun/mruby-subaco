@@ -10,10 +10,11 @@
 #include "mruby/data.h"
 #include "mrb_cvisor.h"
 #include "call_vmm.h"
+#include <unistd.h>
 #define DONE mrb_gc_arena_restore(mrb, 0);
 
 typedef struct {
-  mrb_int pid;
+  mrb_int pgid;
 } mrb_cvisor_data;
 
 static const struct mrb_data_type mrb_cvisor_data_type = {
@@ -40,6 +41,7 @@ static mrb_value mrb_cvisor_init(mrb_state *mrb, mrb_value self)
 {
   mrb_cvisor_data *data;
   mrb_int pid;
+  mrb_int pgid;
 
   data = (mrb_cvisor_data *)DATA_PTR(self);
   if (data) {
@@ -50,8 +52,9 @@ static mrb_value mrb_cvisor_init(mrb_state *mrb, mrb_value self)
 
 
   mrb_get_args(mrb,"i",&pid);
+  pgid = getpgid(pid);
   data = (mrb_cvisor_data *)mrb_malloc(mrb, sizeof(mrb_cvisor_data));
-  data->pid = pid;
+  data->pgid = pgid;
   DATA_PTR(self) = data;
 
   if(vmmcall_setpid(pid) == -1){
@@ -60,10 +63,10 @@ static mrb_value mrb_cvisor_init(mrb_state *mrb, mrb_value self)
   return self;
 }
 
-static mrb_value mrb_cvisor_getpid(mrb_state *mrb, mrb_value self)
+static mrb_value mrb_cvisor_getpgid(mrb_state *mrb, mrb_value self)
 {
 	mrb_cvisor_data *data = DATA_PTR(self); 
-	return mrb_fixnum_value(data->pid);
+	return mrb_fixnum_value(data->pgid);
 }
 
 void mrb_mruby_cvisor_gem_init(mrb_state *mrb)
@@ -71,7 +74,7 @@ void mrb_mruby_cvisor_gem_init(mrb_state *mrb)
   struct RClass *cvisor;
   cvisor = mrb_define_class(mrb, "CVisor", mrb->object_class);
   mrb_define_method(mrb, cvisor, "initialize", mrb_cvisor_init, MRB_ARGS_REQ(1));
-  mrb_define_method(mrb, cvisor, "getpid", mrb_cvisor_getpid, MRB_ARGS_NONE());
+  mrb_define_method(mrb, cvisor, "getpgid", mrb_cvisor_getpgid, MRB_ARGS_NONE());
   DONE;
 }
 
