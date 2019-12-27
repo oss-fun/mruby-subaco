@@ -8,9 +8,12 @@
 
 #include "mruby.h"
 #include "mruby/data.h"
+#include "mruby/array.h"
 #include "mrb_cvisor.h"
 #include "call_vmm.h"
 #include <unistd.h>
+#include <stdlib.h>
+#include <string.h>
 #define DONE mrb_gc_arena_restore(mrb, 0);
 
 typedef struct {
@@ -36,7 +39,24 @@ static int vmmcall_setpid(int pid)
   call_vmm_call_function (&vmm_func, &vmm_arg, &vmm_ret);
   return (int)vmm_ret.rax;
 }
+static int vmmcall_set_whitelist(unsigned char *addr)
+{
+  unsigned long pack_ipaddr;
+  call_vmm_function_t vmm_func;
+  call_vmm_arg_t vmm_arg;
+  call_vmm_ret_t vmm_ret;
 
+  CALL_VMM_GET_FUNCTION ("set_whitelist", &vmm_func);
+  if (!call_vmm_function_callable (&vmm_func)) {
+	return -1;
+  }
+
+  memcpy(&pack_ipaddr, addr,4);
+  vmm_arg.rbx = pack_ipaddr;
+  call_vmm_call_function (&vmm_func, &vmm_arg, &vmm_ret);
+
+  return (int)vmm_ret.rax;
+}
 static mrb_value mrb_cvisor_init(mrb_state *mrb, mrb_value self)
 {
   mrb_cvisor_data *data;
@@ -69,12 +89,27 @@ static mrb_value mrb_cvisor_getpgid(mrb_state *mrb, mrb_value self)
 	return mrb_fixnum_value(data->pgid);
 }
 
+static mrb_value mrb_cvisor_set_whitelist(mrb_state *mrb, mrb_value self)
+{
+	unsigned char ipaddr[4];
+	mrb_value ip_ary;
+	mrb_get_args(mrb,"A", &ip_ary);
+
+	for(int i = 0; i < RARRAY_LEN(ip_ary); i++){
+		ipaddr[i] = mrb_fixnum(mrb_ary_ref(mrb, ip_ary, i));
+	}
+	if (vmmcall_set_whitelist(ipaddr) == -1){
+		fprintf (stderr, "vmmcall \"set_Whitelist\" failed\n");
+	}
+	return self;
+}
 void mrb_mruby_cvisor_gem_init(mrb_state *mrb)
 {
   struct RClass *cvisor;
   cvisor = mrb_define_class(mrb, "CVisor", mrb->object_class);
   mrb_define_method(mrb, cvisor, "initialize", mrb_cvisor_init, MRB_ARGS_REQ(1));
   mrb_define_method(mrb, cvisor, "getpgid", mrb_cvisor_getpgid, MRB_ARGS_NONE());
+  mrb_define_method(mrb, cvisor, "set_whitelist", mrb_cvisor_set_whitelist, MRB_ARGS_REQ(1));
   DONE;
 }
 
