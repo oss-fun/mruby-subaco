@@ -1,4 +1,4 @@
-MRuby::Gem::Specification.new('mruby-cvisor') do |spec|
+MRuby::Gem::Specification.new('mruby-subaco') do |spec|
   
   spec.license = 'MIT'
   spec.authors = 'Yuki Nakata'
