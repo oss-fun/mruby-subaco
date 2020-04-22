@@ -1,0 +1,7 @@
+name: mruby-subaco
+description: Subaco class
+author: Yuki Nakata
+website: https://github.com/chikuwait/mruby-subaco
+protocol: git
+repository: https://github.com/chikuwait/mruby-subaco.git
+license: MIT

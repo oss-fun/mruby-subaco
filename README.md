@@ -1,5 +1,5 @@
-# mruby-cvisor   [![Build Status](https://travis-ci.org/chikuwait/mruby-cvisor.svg?branch=master)](https://travis-ci.org/chikuwait/mruby-cvisor)
-CVisor class
+# mruby-subaco   [![Build Status](https://travis-ci.org/chikuwait/mruby-subaco.svg?branch=master)](https://travis-ci.org/chikuwait/mruby-subaco)
+Subaco class
 ## install by mrbgems
 - add conf.gem line to `build_config.rb`
 
@@ -8,14 +8,14 @@ MRuby::Build.new do |conf|
 
     # ... (snip) ...
 
-    conf.gem :github => 'chikuwait/mruby-cvisor'
+    conf.gem :github => 'chikuwait/mruby-subaco'
 end
 ```
 ## example
 ```ruby
-p CVisor.hi
+p Subaco.hi
 #=> "hi!!"
-t = CVisor.new "hello"
+t = Subaco.new "hello"
 p t.hello
 #=> "hello"
 p t.bye

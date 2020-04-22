@@ -1,5 +1,5 @@
 /*
-** mrb_cvisor.c - CVisor class
+** mrb_subaco.c - Subaco class
 **
 ** Copyright (c) Yuki Nakata 2019
 **
@@ -9,7 +9,7 @@
 #include "mruby.h"
 #include "mruby/data.h"
 #include "mruby/array.h"
-#include "mrb_cvisor.h"
+#include "mrb_subaco.h"
 #include "call_vmm.h"
 #include <unistd.h>
 #include <stdlib.h>
@@ -18,10 +18,10 @@
 
 typedef struct {
   mrb_int pgid;
-} mrb_cvisor_data;
+} mrb_subaco_data;
 
-static const struct mrb_data_type mrb_cvisor_data_type = {
-  "mrb_cvisor_data", mrb_free,
+static const struct mrb_data_type mrb_subaco_data_type = {
+  "mrb_subaco_data", mrb_free,
 };
 
 static int vmmcall_setpid(int pid)
@@ -57,23 +57,23 @@ static int vmmcall_set_whitelist(unsigned char *addr)
 
   return (int)vmm_ret.rax;
 }
-static mrb_value mrb_cvisor_init(mrb_state *mrb, mrb_value self)
+static mrb_value mrb_subaco_init(mrb_state *mrb, mrb_value self)
 {
-  mrb_cvisor_data *data;
+  mrb_subaco_data *data;
   mrb_int pid;
   mrb_int pgid;
 
-  data = (mrb_cvisor_data *)DATA_PTR(self);
+  data = (mrb_subaco_data *)DATA_PTR(self);
   if (data) {
     mrb_free(mrb, data);
   }
-  DATA_TYPE(self) = &mrb_cvisor_data_type;
+  DATA_TYPE(self) = &mrb_subaco_data_type;
   DATA_PTR(self) = NULL;
 
 
   mrb_get_args(mrb,"i",&pid);
   pgid = getpgid(pid);
-  data = (mrb_cvisor_data *)mrb_malloc(mrb, sizeof(mrb_cvisor_data));
+  data = (mrb_subaco_data *)mrb_malloc(mrb, sizeof(mrb_subaco_data));
   data->pgid = pgid;
   DATA_PTR(self) = data;
 
@@ -83,13 +83,13 @@ static mrb_value mrb_cvisor_init(mrb_state *mrb, mrb_value self)
   return self;
 }
 
-static mrb_value mrb_cvisor_getpgid(mrb_state *mrb, mrb_value self)
+static mrb_value mrb_subaco_getpgid(mrb_state *mrb, mrb_value self)
 {
-	mrb_cvisor_data *data = DATA_PTR(self); 
+	mrb_subaco_data *data = DATA_PTR(self); 
 	return mrb_fixnum_value(data->pgid);
 }
 
-static mrb_value mrb_cvisor_set_whitelist(mrb_state *mrb, mrb_value self)
+static mrb_value mrb_subaco_set_whitelist(mrb_state *mrb, mrb_value self)
 {
 	unsigned char ipaddr[4];
 	mrb_value ip_ary;
@@ -103,17 +103,17 @@ static mrb_value mrb_cvisor_set_whitelist(mrb_state *mrb, mrb_value self)
 	}
 	return self;
 }
-void mrb_mruby_cvisor_gem_init(mrb_state *mrb)
+void mrb_mruby_subaco_gem_init(mrb_state *mrb)
 {
-  struct RClass *cvisor;
-  cvisor = mrb_define_class(mrb, "CVisor", mrb->object_class);
-  mrb_define_method(mrb, cvisor, "initialize", mrb_cvisor_init, MRB_ARGS_REQ(1));
-  mrb_define_method(mrb, cvisor, "getpgid", mrb_cvisor_getpgid, MRB_ARGS_NONE());
-  mrb_define_method(mrb, cvisor, "set_whitelist", mrb_cvisor_set_whitelist, MRB_ARGS_REQ(1));
+  struct RClass *subaco;
+  subaco = mrb_define_class(mrb, "Subaco", mrb->object_class);
+  mrb_define_method(mrb, subaco, "initialize", mrb_subaco_init, MRB_ARGS_REQ(1));
+  mrb_define_method(mrb, subaco, "getpgid", mrb_subaco_getpgid, MRB_ARGS_NONE());
+  mrb_define_method(mrb, subaco, "set_whitelist", mrb_subaco_set_whitelist, MRB_ARGS_REQ(1));
   DONE;
 }
 
-void mrb_mruby_cvisor_gem_final(mrb_state *mrb)
+void mrb_mruby_subaco_gem_final(mrb_state *mrb)
 {
 }
 
