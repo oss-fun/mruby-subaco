@@ -87,7 +87,7 @@ static mrb_value mrb_subaco_init(mrb_state *mrb, mrb_value self)
   DATA_PTR(self) = data;
 
   if(vmmcall_set_pid_inum(pid_inum) == -1){
-    fprintf (stderr, "vmmcall \"setpid\" failed\n");
+    fprintf (stderr, "[Error] vmmcall \"set_pid_inum\" failed\n");
   }
   return self;
 }
@@ -108,7 +108,7 @@ static mrb_value mrb_subaco_set_whitelist(mrb_state *mrb, mrb_value self)
 		ipaddr[i] = mrb_fixnum(mrb_ary_ref(mrb, ip_ary, i));
 	}
 	if (vmmcall_set_whitelist(ipaddr) == -1){
-		fprintf (stderr, "vmmcall \"set_Whitelist\" failed\n");
+		fprintf (stderr, "[Error] vmmcall \"set_Whitelist\" failed\n");
 	}
 	return self;
 }
