@@ -17,7 +17,7 @@
 #define DONE mrb_gc_arena_restore(mrb, 0);
 
 typedef struct {
-  mrb_int pgid;
+  mrb_int pid;
   mrb_int pid_inum;
 } mrb_subaco_data;
 
@@ -40,6 +40,7 @@ static int vmmcall_set_pid_inum(int pid)
   call_vmm_call_function (&vmm_func, &vmm_arg, &vmm_ret);
   return (int)vmm_ret.rax;
 }
+
 static int vmmcall_set_whitelist(unsigned char *addr)
 {
   unsigned long pack_ipaddr;
@@ -64,9 +65,7 @@ static mrb_value mrb_subaco_init(mrb_state *mrb, mrb_value self)
   struct RClass *util;
   mrb_value mrb_pid_inum;
   mrb_subaco_data *data;
-  mrb_int pid;
-  mrb_int pgid;
-  mrb_int pid_inum;
+  mrb_int pid, pid_inum;
   
   data = (mrb_subaco_data *)DATA_PTR(self);
   if (data) {
@@ -77,14 +76,13 @@ static mrb_value mrb_subaco_init(mrb_state *mrb, mrb_value self)
 
 
   mrb_get_args(mrb,"i",&pid);
-  pgid = getpgid(pid);
  
   util = mrb_module_get(mrb,"Util"); 
   mrb_pid_inum = mrb_funcall(mrb,mrb_obj_value(util),"pid_inum",1,mrb_fixnum_value(pid));
   pid_inum = mrb_fixnum(mrb_pid_inum);
 
   data = (mrb_subaco_data *)mrb_malloc(mrb, sizeof(mrb_subaco_data));
-  data->pgid = pgid;
+  data->pid = pid;
   data->pid_inum = pid_inum;
   DATA_PTR(self) = data;
 
@@ -94,10 +92,10 @@ static mrb_value mrb_subaco_init(mrb_state *mrb, mrb_value self)
   return self;
 }
 
-static mrb_value mrb_subaco_getpgid(mrb_state *mrb, mrb_value self)
+static mrb_value mrb_subaco_getpid(mrb_state *mrb, mrb_value self)
 {
 	mrb_subaco_data *data = DATA_PTR(self); 
-	return mrb_fixnum_value(data->pgid);
+	return mrb_fixnum_value(data->pid);
 }
 
 static mrb_value mrb_subaco_set_whitelist(mrb_state *mrb, mrb_value self)
@@ -119,7 +117,7 @@ void mrb_mruby_subaco_gem_init(mrb_state *mrb)
   struct RClass *subaco;
   subaco = mrb_define_class(mrb, "Subaco",mrb->object_class);
   mrb_define_method(mrb, subaco, "initialize", mrb_subaco_init, MRB_ARGS_REQ(1));
-  mrb_define_method(mrb, subaco, "getpgid", mrb_subaco_getpgid, MRB_ARGS_NONE());
+  mrb_define_method(mrb, subaco, "getpgid", mrb_subaco_getpid, MRB_ARGS_NONE());
   mrb_define_method(mrb, subaco, "set_whitelist", mrb_subaco_set_whitelist, MRB_ARGS_REQ(1));
   DONE;
 }
