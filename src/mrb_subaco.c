@@ -117,7 +117,7 @@ void mrb_mruby_subaco_gem_init(mrb_state *mrb)
   struct RClass *subaco;
   subaco = mrb_define_class(mrb, "Subaco",mrb->object_class);
   mrb_define_method(mrb, subaco, "initialize", mrb_subaco_init, MRB_ARGS_REQ(1));
-  mrb_define_method(mrb, subaco, "getpgid", mrb_subaco_getpid, MRB_ARGS_NONE());
+  mrb_define_method(mrb, subaco, "getpid", mrb_subaco_getpid, MRB_ARGS_NONE());
   mrb_define_method(mrb, subaco, "set_whitelist", mrb_subaco_set_whitelist, MRB_ARGS_REQ(1));
   DONE;
 }
