@@ -18,19 +18,20 @@
 
 typedef struct {
   mrb_int pgid;
+  mrb_int pid_inum;
 } mrb_subaco_data;
 
 static const struct mrb_data_type mrb_subaco_data_type = {
   "mrb_subaco_data", mrb_free,
 };
 
-static int vmmcall_setpid(int pid)
+static int vmmcall_set_pid_inum(int pid)
 {
   call_vmm_function_t vmm_func;
   call_vmm_arg_t vmm_arg;
   call_vmm_ret_t vmm_ret;
 
-  CALL_VMM_GET_FUNCTION ("setpid", &vmm_func);
+  CALL_VMM_GET_FUNCTION ("set_pid_inum", &vmm_func);
   if (!call_vmm_function_callable (&vmm_func)) {
 	return -1;
   }
@@ -57,12 +58,16 @@ static int vmmcall_set_whitelist(unsigned char *addr)
 
   return (int)vmm_ret.rax;
 }
+
 static mrb_value mrb_subaco_init(mrb_state *mrb, mrb_value self)
 {
+  struct RClass *util;
+  mrb_value mrb_pid_inum;
   mrb_subaco_data *data;
   mrb_int pid;
   mrb_int pgid;
-
+  mrb_int pid_inum;
+  
   data = (mrb_subaco_data *)DATA_PTR(self);
   if (data) {
     mrb_free(mrb, data);
@@ -73,11 +78,17 @@ static mrb_value mrb_subaco_init(mrb_state *mrb, mrb_value self)
 
   mrb_get_args(mrb,"i",&pid);
   pgid = getpgid(pid);
+ 
+  util = mrb_module_get(mrb,"Util"); 
+  mrb_pid_inum = mrb_funcall(mrb,mrb_obj_value(util),"pid_inum",1,mrb_fixnum_value(pid));
+  pid_inum = mrb_fixnum(mrb_pid_inum);
+
   data = (mrb_subaco_data *)mrb_malloc(mrb, sizeof(mrb_subaco_data));
   data->pgid = pgid;
+  data->pid_inum = pid_inum;
   DATA_PTR(self) = data;
 
-  if(vmmcall_setpid(pid) == -1){
+  if(vmmcall_set_pid_inum(pid_inum) == -1){
     fprintf (stderr, "vmmcall \"setpid\" failed\n");
   }
   return self;
@@ -106,7 +117,7 @@ static mrb_value mrb_subaco_set_whitelist(mrb_state *mrb, mrb_value self)
 void mrb_mruby_subaco_gem_init(mrb_state *mrb)
 {
   struct RClass *subaco;
-  subaco = mrb_define_class(mrb, "Subaco", mrb->object_class);
+  subaco = mrb_define_class(mrb, "Subaco",mrb->object_class);
   mrb_define_method(mrb, subaco, "initialize", mrb_subaco_init, MRB_ARGS_REQ(1));
   mrb_define_method(mrb, subaco, "getpgid", mrb_subaco_getpgid, MRB_ARGS_NONE());
   mrb_define_method(mrb, subaco, "set_whitelist", mrb_subaco_set_whitelist, MRB_ARGS_REQ(1));
