@@ -60,6 +60,24 @@ static int vmmcall_set_whitelist(unsigned char *addr)
   return (int)vmm_ret.rax;
 }
 
+static int vmmcall_set_global_network(int macaddr, int value)
+{
+	call_vmm_function_t vmm_func;
+	call_vmm_arg_t vmm_arg;
+	call_vmm_ret_t vmm_ret;
+
+        CALL_VMM_GET_FUNCTION ("set_global_network_permission", &vmm_func);
+
+        if (!call_vmm_function_callable (&vmm_func))
+		return -1;
+
+	vmm_arg.rbx = (long)macaddr;
+	vmm_arg.rcx = (long)value;
+	call_vmm_call_function (&vmm_func, &vmm_arg, &vmm_ret);
+
+	return 0;
+}
+
 static mrb_value mrb_subaco_init(mrb_state *mrb, mrb_value self)
 {
   struct RClass *util;
@@ -112,6 +130,18 @@ static mrb_value mrb_subaco_set_whitelist(mrb_state *mrb, mrb_value self)
 	}
 	return self;
 }
+
+static mrb_value mrb_subaco_global_network(mrb_state *mrb, mrb_value self)
+{
+	int macaddr, value;
+	mrb_get_args(mrb, "i,i", &macaddr, &value);
+
+	if (!vmmcall_set_global_network (macaddr, value))
+		fprintf (stderr, "[Error] vmmcall \"set_global_network\" failed\n");
+
+	return self;
+}
+
 void mrb_mruby_subaco_gem_init(mrb_state *mrb)
 {
   struct RClass *subaco;
@@ -119,6 +149,8 @@ void mrb_mruby_subaco_gem_init(mrb_state *mrb)
   mrb_define_method(mrb, subaco, "initialize", mrb_subaco_init, MRB_ARGS_REQ(1));
   mrb_define_method(mrb, subaco, "getpid", mrb_subaco_getpid, MRB_ARGS_NONE());
   mrb_define_method(mrb, subaco, "set_whitelist", mrb_subaco_set_whitelist, MRB_ARGS_REQ(1));
+  mrb_define_method(mrb, subaco, "set_global_network", mrb_subaco_global_network, MRB_ARGS_REQ(2));
+ 
   DONE;
 }
 

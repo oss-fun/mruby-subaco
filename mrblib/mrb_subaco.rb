@@ -1,4 +1,7 @@
 class Subaco
+    def allow_global_network(macaddr)
+        set_global_network(macaddr, 1)
+    end
     def allow_ipaddr(ipaddr)
 	    set_whitelist(ipaddr.split(".").map!(&:to_i))
     end
