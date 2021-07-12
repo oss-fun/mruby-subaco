@@ -70,13 +70,13 @@ vmmcall_set_global_network (int macaddr, int value)
         CALL_VMM_GET_FUNCTION ("set_global_network_permission", &vmm_func);
 
         if (!call_vmm_function_callable (&vmm_func))
-		return -1;
+		return 0;
 
 	vmm_arg.rbx = (long)macaddr;
 	vmm_arg.rcx = (long)value;
 	call_vmm_call_function (&vmm_func, &vmm_arg, &vmm_ret);
 
-	return 0;
+	return 1;
 }
 
 static mrb_value
@@ -137,7 +137,7 @@ mrb_subaco_set_whitelist (mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_subaco_global_network (mrb_state *mrb, mrb_value self)
 {
-	int macaddr, value;
+	mrb_int macaddr, value;
 	mrb_get_args (mrb, "i,i", &macaddr, &value);
 
 	if (!vmmcall_set_global_network (macaddr, value))
