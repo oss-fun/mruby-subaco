@@ -5,6 +5,13 @@ class Subaco
   def deny_global_network
     set_global_network 0
   end
+  def label=(label)
+    @label = label.unpack("H*")[0].hex
+    set_label @label
+  end
+  def label
+    @label
+  end
 end
 
 module Util
