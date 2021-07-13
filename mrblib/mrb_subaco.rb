@@ -2,6 +2,9 @@ class Subaco
   def allow_global_network
     set_global_network 1
   end
+  def deny_global_network
+    set_global_network 0
+  end
 end
 
 module Util
