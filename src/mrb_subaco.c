@@ -50,7 +50,7 @@ vmmcall_set_label (int macaddr, int value)
 	call_vmm_arg_t vmm_arg;
 	call_vmm_ret_t vmm_ret;
 
-        CALL_VMM_GET_FUNCTION ("set_container_network", &vmm_func);
+        CALL_VMM_GET_FUNCTION ("set_container_network_label", &vmm_func);
 
         if (!call_vmm_function_callable (&vmm_func))
 		return 0;
@@ -119,7 +119,7 @@ mrb_mruby_subaco_gem_init (mrb_state *mrb)
 	subaco = mrb_define_class (mrb, "Subaco",mrb->object_class);
 	mrb_define_method (mrb, subaco, "initialize", mrb_subaco_init, MRB_ARGS_REQ(1));
 	mrb_define_method (mrb, subaco, "set_global_network", mrb_subaco_global_network, MRB_ARGS_REQ(2));
-	mrb_define_method (mrb, subaco, "set_label", mrb_subaco_global_network, MRB_ARGS_REQ(1));
+	mrb_define_method (mrb, subaco, "set_label", mrb_subaco_set_label, MRB_ARGS_REQ(1));
 
 	DONE;
 }
