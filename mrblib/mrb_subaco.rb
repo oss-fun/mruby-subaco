@@ -7,7 +7,7 @@ class Subaco
     @ip_addr = nil
 
     connect_with_vmm(@mac_addr, @dev_no, @func_no)
-  end:
+  end
   def assign_ip_addr
     addr = []
     4.times do |n|
