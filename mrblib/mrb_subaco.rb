@@ -1,4 +1,24 @@
 class Subaco
+  def initialize(name, mac_addr, dev_no, func_no)
+    @name = name
+    @mac_addr = mac_addr
+    @dev_no = dev_no
+    @func_no = func_no
+    @ip_addr = nil
+
+    connect_with_vmm(@mac_addr, @dev_no, @func_no)
+  end
+  def assign_ip_addr
+    addr = []
+    4.times do |n|
+      addr.push(get_ip_addr(@dev_no, @func_no, n).to_s)
+    end
+    @ip_addr = addr.join[":"] + "/24"
+    puts @ip_addr
+  end
+  def ip_addr
+    @ip_addr
+  end
   def allow_global_network
     set_global_network 1
   end
