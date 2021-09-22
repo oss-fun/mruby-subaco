@@ -149,9 +149,9 @@ mrb_mruby_subaco_gem_init (mrb_state *mrb)
 	struct RClass *subaco;
 	subaco = mrb_define_class (mrb, "Subaco",mrb->object_class);
 	mrb_define_method (mrb, subaco, "connect_with_vmm", mrb_connect_with_vmm, MRB_ARGS_REQ(3));
-	mrb_define_method (mrb, subaco, "set_global_network", mrb_subaco_global_network, MRB_ARGS_REQ(2));
+	mrb_define_method (mrb, subaco, "set_global_network", mrb_subaco_global_network, MRB_ARGS_REQ(1));
 	mrb_define_method (mrb, subaco, "set_label", mrb_subaco_set_label, MRB_ARGS_REQ(1));
-	mrb_define_method (mrb, subaco, "get_ip_addr", mrb_subaco_get_ipaddr, MRB_ARGS_REQ(2));
+	mrb_define_method (mrb, subaco, "get_ip_addr", mrb_subaco_get_ipaddr, MRB_ARGS_REQ(3));
 
 	DONE;
 }
