@@ -1,6 +1,7 @@
 class Subaco
-  def initialize(name, mac_addr, dev_no, func_no)
+  def initialize(name, nic, mac_addr, dev_no, func_no)
     @name = name
+    @nic = nic
     @mac_addr = mac_addr
     @dev_no = dev_no
     @func_no = func_no
@@ -11,10 +12,13 @@ class Subaco
   def assign_ip_addr
     addr = []
     4.times do |n|
-      addr.push(get_ip_addr(@dev_no, @func_no, n).to_s)
+      addr << get_ip_addr(@dev_no, @func_no, n).to_s
     end
-    @ip_addr = addr.join[":"] + "/24"
-    puts @ip_addr
+    @ip_addr = addr.join('.') << "/24"
+
+    system("ip link set #{@nic} netns #{@name}")
+    system("ip netns exec #{@name} ip addr add #{@ip_addr} dev #{@nic}")
+    system("ip netns exec #{@name} ip link set #{@nic} up")
   end
   def ip_addr
     @ip_addr
