@@ -73,6 +73,10 @@ vmmcall_get_vnic_ipaddr(mrb_subaco_data *data, int device_no, int func_no)
 	CALL_VMM_GET_FUNCTION("get_vnic_ipaddr", &vmm_func);
 	if (!call_vmm_function_callable (&vmm_func))
 		return 0;
+
+	vmm_arg.rbx = (long)device_no;
+	vmm_arg.rcx = (long)func_no;
+
 	call_vmm_call_function (&vmm_func, &vmm_arg, &vmm_ret);
 
 	data->ip_addr[0] = (int)vmm_ret.rax;
@@ -80,7 +84,7 @@ vmmcall_get_vnic_ipaddr(mrb_subaco_data *data, int device_no, int func_no)
 	data->ip_addr[2] = (int)vmm_ret.rcx;
 	data->ip_addr[3] = (int)vmm_ret.rdx;
 
-	return 0;
+	return 1;
 }
 
 static mrb_value
@@ -98,7 +102,7 @@ mrb_connect_with_vmm (mrb_state *mrb, mrb_value self)
 	DATA_PTR (self) = NULL;
 	data = (mrb_subaco_data *)mrb_malloc(mrb, sizeof(mrb_subaco_data));
 
-	mrb_get_args (mrb,"i,i,i",&mac, &device_no, &func_no);
+	mrb_get_args (mrb,"iii",&mac, &device_no, &func_no);
 	data->mac = mac;
 
 	if (!vmmcall_get_vnic_ipaddr(data, device_no, func_no))
@@ -138,7 +142,7 @@ static mrb_value
 mrb_subaco_get_ipaddr ( mrb_state *mrb, mrb_value self)
 {
 	mrb_int dev_no, func_no,digit;
-	mrb_get_args (mrb, "i,i,i", &dev_no, &func_no, &digit);
+	mrb_get_args (mrb, "iii", &dev_no, &func_no, &digit);
 	mrb_subaco_data *data = DATA_PTR(self);
 	return mrb_fixnum_value(data->ip_addr[digit]);
 }
